@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 const axios = require('axios');
 const Say = require('say').Say;
+const say = new Say('darwin' || 'win32' || 'linux');
 
 type postobject ={video_id : string; post_title : string; post_content : string};
 const videos = [
@@ -14,7 +15,8 @@ const videos = [
 async function getRedditPosts() {
     try {
         // Make a GET request to the Reddit API
-        const response = await axios.get('https://www.reddit.com/r/amitheasshole.json');
+        //const response = await axios.get('https://www.reddit.com/r/amitheasshole.json');
+		const response = await axios.get('https://www.reddit.com/r/Python.json');
 
         // Extract the data from the response
         const posts = response.data.data.children;
@@ -27,6 +29,7 @@ async function getRedditPosts() {
         return [];
     }
 }
+
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -43,34 +46,48 @@ export function activate(context: vscode.ExtensionContext) {
 		const panel = vscode.window.createWebviewPanel('subway-surfers.video', "overstim", column, options);
 		const video = videos.sort(() => Math.random() - 0.5)[0];
 		let posts = await getRedditPosts(); 
-		posts = JSON.stringify(posts, null, 2);
-		
 		
 		panel.reveal();
-		const say = new Say('darwin' || 'win32' || 'linux');
+
 		let postobject: postobject = {
 				video_id: video,
 				post_content: "test",
 				post_title: "Am i the asshole: fortnite burger"
-			};
+		};
+
+		posts.shift();
+		posts.shift();
 		for (var key in posts){
 			var post = posts[key];
-		
-		const updateWebview = () => {
-			panel.title = count.toString();
-			count++;
-			panel.webview.html = getWebviewContent(postobject);
-		  };
-	
-		say.speak(postobject.post_title, 'Good News', 1.0, (err: any) => {
-			if (err) {
-			  return console.error(err);
-			}
-			say.speak(postobject.post_content);
-		  });
+			post = post.data;
+			postobject.post_content = post.selftext;
+			postobject.post_title = post.title;
+			const updateWebview = () => {
+				panel.title = postobject.post_title;
+				count++;
+				panel.webview.html = getWebviewContent(postobject);
+			};
+			let chunkedpost = post.selftextmatch(/.{1,50}/g); // chunks 50 words 
+			
+			const promise = new Promise<void>((resolve) => {
+				// Call the callback-based function
+				say.speak(postobject.post_title, null, 1.0, (err: any) => {
+					if (err) {
+						return console.error(err);
+					}
+					say.speak(postobject.post_content, null, 1.0, (err: any) => {
+						if (err) {
+							return console.error(err);
+						}
+						resolve();
+					});
+				});
+			});	     
+			
 
-		// Set initial content
-		updateWebview();
+			// Set initial content
+			updateWebview();
+			await promise;
 		};
 	});
 
@@ -132,3 +149,7 @@ function getWebviewContent(post: postobject){
 	</html>
 `;
 }
+
+export function deactivate() {
+	say.stop();
+ }
