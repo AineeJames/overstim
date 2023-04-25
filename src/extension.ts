@@ -15,8 +15,7 @@ const videos = [
 async function getRedditPosts() {
     try {
         // Make a GET request to the Reddit API
-        //const response = await axios.get('https://www.reddit.com/r/amitheasshole.json');
-		const response = await axios.get('https://www.reddit.com/r/Python.json');
+        const response = await axios.get('https://www.reddit.com/r/amitheasshole.json');
 
         // Extract the data from the response
         const posts = response.data.data.children;
@@ -51,23 +50,28 @@ export function activate(context: vscode.ExtensionContext) {
 
 		let postobject: postobject = {
 				video_id: video,
-				post_content: "test",
-				post_title: "Am i the asshole: fortnite burger"
+				post_content: "content",
+				post_title: "title"
 		};
 
+		
 		posts.shift();
 		posts.shift();
 		for (var key in posts){
 			var post = posts[key];
 			post = post.data;
-			postobject.post_content = post.selftext;
+			let chunkedpost = post.selftext.match(/.{1,500}/g); // chunks 500 characters
+			postobject.post_content = chunkedpost[0];
 			postobject.post_title = post.title;
 			const updateWebview = () => {
 				panel.title = postobject.post_title;
 				count++;
 				panel.webview.html = getWebviewContent(postobject);
 			};
-			let chunkedpost = post.selftextmatch(/.{1,50}/g); // chunks 50 words 
+			
+			console.log(chunkedpost);
+			console.log(postobject.video_id);
+
 			
 			const promise = new Promise<void>((resolve) => {
 				// Call the callback-based function
@@ -119,14 +123,14 @@ function getWebviewContent(post: postobject){
 				left: 50%;
 				transform: translate(-50%, -50%);
 				background-color: rgba(0, 0, 0, 0.5);
-				padding: 20px;
+				padding: 5px;
 				text-align: center;
 				color: #fff;
 				border-radius: 10px;
 			  }
 			  
-			  .text-box h2 {
-				font-size: 2.5em;
+			  .text-box h4 {
+				font-size: 2.0em;
 				margin-top: 0;
 			  }
 			  
@@ -141,7 +145,7 @@ function getWebviewContent(post: postobject){
 					<source src="https://yewtu.be/latest_version?id=${post.video_id}&amp;itag=22#t=100">
 				</video>
 				<div class="text-box">
-					<h2>${post.post_title}</h2>
+					<h4>${post.post_title}</h4>
 					<p>${post.post_content}</p>
 				</div>
 			</div>
@@ -152,4 +156,4 @@ function getWebviewContent(post: postobject){
 
 export function deactivate() {
 	say.stop();
- }
+}
