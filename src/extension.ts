@@ -29,6 +29,46 @@ async function getRedditPosts() {
     }
 }
 
+function chunkStringToWords(inputString: string, wordsPerChunk: number) {
+	const words = inputString.split(" "); // Split the input string by spaces to get an array of words
+	const chunkedArray = [];
+	let currentChunk = [];
+	
+	for (let i = 0; i < words.length; i++) {
+	  currentChunk.push(words[i]); // Add the word to the current chunk
+	  if (currentChunk.length === wordsPerChunk) {
+		chunkedArray.push(currentChunk.join(" ")); // Join the words in the current chunk with spaces and push to the chunked array
+		currentChunk = []; // Reset the current chunk
+	  }
+	}
+  
+	if (currentChunk.length > 0) {
+	  chunkedArray.push(currentChunk.join(" ")); // Push the remaining words in the last chunk
+	}
+  
+	return chunkedArray;
+  }
+
+async function speakChunks(chunkedStringArray : any, postobject: postobject, updateWebview: CallableFunction) {
+	for (let i = 0; i < chunkedStringArray.length; i++) {
+	  const chunk = chunkedStringArray[i];
+	  postobject.post_title = "";
+	  postobject.post_content = chunkedStringArray[i];
+	  updateWebview(postobject);
+	  await new Promise<void>((resolve, reject) => {
+		say.speak(chunk, null, 1.0, (err:any) => {
+		  if (err) {
+			reject(err);
+		  } else {
+			resolve();
+		  }
+		  
+		});
+	  });
+	}
+	console.log("All chunks have been spoken");
+  }
+
 
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
@@ -60,7 +100,7 @@ export function activate(context: vscode.ExtensionContext) {
 		for (var key in posts){
 			var post = posts[key];
 			post = post.data;
-			let chunkedpost = post.selftext.match(/.{1,500}/g); // chunks 500 characters
+			let chunkedpost = chunkStringToWords(post.selftext,20); // chunks 500 characters
 			postobject.post_content = chunkedpost[0];
 			postobject.post_title = post.title;
 			const updateWebview = () => {
@@ -73,21 +113,27 @@ export function activate(context: vscode.ExtensionContext) {
 			console.log(postobject.video_id);
 
 			
+			const promise = speakChunks(chunkedpost,postobject,updateWebview);
+			/*
 			const promise = new Promise<void>((resolve) => {
 				// Call the callback-based function
 				say.speak(postobject.post_title, null, 1.0, (err: any) => {
 					if (err) {
 						return console.error(err);
 					}
-					say.speak(postobject.post_content, null, 1.0, (err: any) => {
-						if (err) {
-							return console.error(err);
-						}
-						resolve();
-					});
+					Promise.all(promiseArray)
+						.then(() => {
+							console.log("All chunks have been spoken");
+							// Call resolve() once all promises have resolved
+							resolve();
+						})
+						.catch((err) => {
+							console.error("Error while speaking chunks:", err);
+							// Call reject() if any promise rejects
+						});
 				});
 			});	     
-			
+			*/
 
 			// Set initial content
 			updateWebview();
