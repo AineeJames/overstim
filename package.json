@@ -2,6 +2,7 @@
   "name": "overstim",
   "displayName": "overstim",
   "description": "",
+  "publisher": "overstim",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.77.0"
