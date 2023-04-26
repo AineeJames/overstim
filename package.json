@@ -16,7 +16,7 @@
     "commands": [
       {
         "command": "overstim.overstimulate",
-        "title": "Overstim command"
+        "title": "Overstimulate"
       }
     ],
    "configuration": 
