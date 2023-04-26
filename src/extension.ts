@@ -1,6 +1,5 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
-import { webcrypto } from 'crypto';
 import * as vscode from 'vscode';
 const axios = require('axios');
 const Say = require('say').Say;
