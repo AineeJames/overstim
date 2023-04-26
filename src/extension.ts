@@ -1,5 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
+import { webcrypto } from 'crypto';
 import * as vscode from 'vscode';
 const axios = require('axios');
 const Say = require('say').Say;
@@ -15,6 +16,15 @@ const videos = [
 	"iaQ6S-YZEtU", //
 	"Unt3NPNPzR4"  //
 ];
+
+function shuffleArray(array: any) {
+    for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var temp = array[i];
+        array[i] = array[j];
+        array[j] = temp;
+    }
+}
 
 async function getRedditPosts(reddit: string) {
 	try {
@@ -128,6 +138,8 @@ export function activate(context: vscode.ExtensionContext) {
 		posts.shift();
 		let video = videos.sort(() => Math.random() - 0.5)[0];
 		let lastvideo = video;
+		shuffleArray(posts);
+		console.log(posts);
 		for (var key in posts) {
 
 			video = videos.sort(() => Math.random() - 0.5)[0];
