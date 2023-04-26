@@ -74,7 +74,7 @@ async function speakChunks(chunkedStringArray: any, postobject: postobject, upda
 		const timeoutPromise = new Promise<void>((_, reject) => {
 			setTimeout(() => {
 				reject(new Error('Timeout exceeded'));
-			}, 10000); // Timeout set to 7 seconds
+			}, 10000); // Timeout set to 10 seconds
 		});
 
 		const speechPromise = new Promise<void>((resolve, reject) => {
