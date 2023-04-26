@@ -2,6 +2,8 @@
 
 Overstim allows you to "freely think" and get your code working faster than ever!
 
+![demo](./imgs/demo.png)
+
 ## Features
 
 - Improves focus
