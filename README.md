@@ -1,16 +1,14 @@
-# overstim README
+# Overstim README
 
-overstim allows you to "freely think" and get your code working faster than ever!
+Overstim allows you to "freely think" and get your code working faster than ever!
 
 ## Features
 
-Describe specific features of your extension including screenshots of your extension in action. Image paths are relative to this README file.
+- Imporves focus
+- No targeted advertisements
+- Inifinite reddit readings
 
-For example if there is an image subfolder under your extension project workspace:
-
-![example](./imgs/example.png)
-
-> Tip: Many popular extensions utilize animations. This is an excellent way to show off your extension! We recommend short, focused animations that are easy to follow.
+![example](/imgs/vid.mov)
 
 ## Extension Settings
 
