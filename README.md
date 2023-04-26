@@ -8,7 +8,7 @@ Overstim allows you to "freely think" and get your code working faster than ever
 - No targeted advertisements
 - Inifinite reddit readings
 
-![example](/imgs/vid.gif)
+![example](/imgs/vid.mp4)
 
 ## Extension Settings
 
