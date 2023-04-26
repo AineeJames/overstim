@@ -29,6 +29,16 @@ async function getRedditPosts() {
     }
 }
 
+function splitStringIntoSentences(str: string, n: number) {
+	// Use a regular expression to split the string into sentences
+	const sentences = str.replace(/([.?!])\s*(?=[A-Z])/g, "$1|").split("|");
+  
+	// Filter out any empty sentences
+	const filteredSentences = sentences.filter(sentence => sentence.trim() !== '');
+  
+	return filteredSentences;
+}
+
 function chunkStringToWords(inputString: string, wordsPerChunk: number) {
 	const words = inputString.split(" "); // Split the input string by spaces to get an array of words
 	const chunkedArray = [];
@@ -100,40 +110,35 @@ export function activate(context: vscode.ExtensionContext) {
 		for (var key in posts){
 			var post = posts[key];
 			post = post.data;
-			let chunkedpost = chunkStringToWords(post.selftext,20); // chunks 500 characters
-			postobject.post_content = chunkedpost[0];
+			//let chunkedpost = chunkStringToWords(post.selftext,20); // chunks 500 characters
+			let chunkedpost = splitStringIntoSentences(post.selftext,3);
+			postobject.post_content = "";
 			postobject.post_title = post.title;
+			panel.webview.html = getWebviewContent(postobject);
 			const updateWebview = () => {
 				panel.title = postobject.post_title;
 				count++;
-				panel.webview.html = getWebviewContent(postobject);
+				//panel.webview.html = getWebviewContent(postobject);
+				panel.webview.postMessage(postobject);
 			};
 			
 			console.log(chunkedpost);
 			console.log(postobject.video_id);
 
-			
-			const promise = speakChunks(chunkedpost,postobject,updateWebview);
-			/*
-			const promise = new Promise<void>((resolve) => {
+			const titlepromise = new Promise<void>((resolve) => {
 				// Call the callback-based function
 				say.speak(postobject.post_title, null, 1.0, (err: any) => {
 					if (err) {
 						return console.error(err);
 					}
-					Promise.all(promiseArray)
-						.then(() => {
-							console.log("All chunks have been spoken");
-							// Call resolve() once all promises have resolved
-							resolve();
-						})
-						.catch((err) => {
-							console.error("Error while speaking chunks:", err);
-							// Call reject() if any promise rejects
-						});
+					resolve();
 				});
-			});	     
-			*/
+			});	
+			updateWebview();
+			await titlepromise;
+
+			const promise = speakChunks(chunkedpost,postobject,updateWebview);
+			     
 
 			// Set initial content
 			updateWebview();
@@ -186,15 +191,34 @@ function getWebviewContent(post: postobject){
 			</style>
 		</head>
 		<body>
+
 			<div class="video-container">
-				<video autoplay muted width="300">
+				<video autoplay loop muted width="300">
 					<source src="https://yewtu.be/latest_version?id=${post.video_id}&amp;itag=22#t=100">
 				</video>
 				<div class="text-box">
-					<h4>${post.post_title}</h4>
-					<p>${post.post_content}</p>
+					<h4 id="title">${post.post_title}</h4>
+					<p id="content">${post.post_content}</p>
 				</div>
 			</div>
+		<script>
+		const title = document.getElementById('title');
+		const content = document.getElementById('content');
+		window.addEventListener('message', event => {
+
+            const message = event.data; // The JSON data our extension sent
+			console.log(message)
+			console.log(message.post_title)
+			if (message.post_title != ''){
+				title.textContent = message.post_title
+			}
+			content.textContent = message.post_content
+			if (message.post_title == ''){
+				title.remove()		
+			}
+
+		});
+		</script>
 		</body>
 	</html>
 `;
