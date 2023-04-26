@@ -7,16 +7,19 @@ const say = new Say('darwin' || 'win32' || 'linux');
 
 type postobject ={video_id : string; post_title : string; post_content : string};
 const videos = [
-	"hs7Z0JUgDeA",
-	"iYgYfHb8gbQ",
-	"JlPEb6WNuDI",
-	"3EY65TxUB5E",
+	"hs7Z0JUgDeA", // subway
+	"iYgYfHb8gbQ", // subway
+	"JlPEb6WNuDI", // minecraft
+	"3EY65TxUB5E", // blue star
+	"y6oMutwJQCw", // nature
+	"iaQ6S-YZEtU", //
+	"Unt3NPNPzR4"  //
 ];
 
-async function getRedditPosts() {
+async function getRedditPosts(reddit: string) {
     try {
         // Make a GET request to the Reddit API
-        const response = await axios.get('https://www.reddit.com/r/antijoke.json');
+        const response = await axios.get('https://www.reddit.com/r/' + reddit + '.json');
 
         // Extract the data from the response
         const posts = response.data.data.children;
@@ -88,13 +91,15 @@ export function activate(context: vscode.ExtensionContext) {
 	// The command has been defined in the package.json file
 	// Now provide the implementation of the command with registerCommand
 	// The commandId parameter must match the command field in package.json
+	const configuration = vscode.workspace.getConfiguration('overstim');
+	const reddit:string = configuration.get('subreddit')!;
 	let count = 0;
 	let disposable = vscode.commands.registerCommand('overstim.overstimulate', async () => {
 		const column = { viewColumn: vscode.ViewColumn.Beside, preserverFocus: true };
 		const options = { enableScripts: true, retainContextWhenHidden: true };
 
 		const panel = vscode.window.createWebviewPanel('subway-surfers.video', "overstim", column, options);
-		let posts = await getRedditPosts(); 
+		let posts = await getRedditPosts(reddit); 
 		
 		panel.reveal();
 
@@ -181,7 +186,6 @@ function getWebviewContent(post: postobject){
 				width: 100%; /* Set width to 100% to fill the container horizontally */
 				height: 100%;
 				overflow: hidden;
-				border-radius: 50px;
 			  }
 			  
 			  .text-box {

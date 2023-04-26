@@ -10,6 +10,7 @@
     "Other"
   ],
   "activationEvents": [],
+  
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
@@ -17,7 +18,18 @@
         "command": "overstim.overstimulate",
         "title": "Overstim command"
       }
-    ]
+    ],
+   "configuration": 
+    {
+        "title": "overstim",
+        "properties": {
+            "overstim.subreddit": {
+                "type": "string",
+                "default": "amitheasshole",
+                "description": "Reddit page to use"
+            }
+        }
+    } 
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
