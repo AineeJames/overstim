@@ -10,12 +10,13 @@ const videos = [
 	"hs7Z0JUgDeA",
 	"iYgYfHb8gbQ",
 	"JlPEb6WNuDI",
+	"3EY65TxUB5E",
 ];
 
 async function getRedditPosts() {
     try {
         // Make a GET request to the Reddit API
-        const response = await axios.get('https://www.reddit.com/r/amitheasshole.json');
+        const response = await axios.get('https://www.reddit.com/r/antijoke.json');
 
         // Extract the data from the response
         const posts = response.data.data.children;
@@ -93,21 +94,30 @@ export function activate(context: vscode.ExtensionContext) {
 		const options = { enableScripts: true, retainContextWhenHidden: true };
 
 		const panel = vscode.window.createWebviewPanel('subway-surfers.video', "overstim", column, options);
-		const video = videos.sort(() => Math.random() - 0.5)[0];
 		let posts = await getRedditPosts(); 
 		
 		panel.reveal();
 
-		let postobject: postobject = {
-				video_id: video,
-				post_content: "content",
-				post_title: "title"
-		};
-
+		
 		
 		posts.shift();
 		posts.shift();
+		let video = videos.sort(() => Math.random() - 0.5)[0];
+		let lastvideo = video;
 		for (var key in posts){
+
+			video = videos.sort(() => Math.random() - 0.5)[0];
+			while (video === lastvideo){
+				video = videos.sort(() => Math.random() - 0.5)[0];
+			}
+			lastvideo = video;
+
+			let postobject: postobject = {
+							video_id: video,
+							post_content: "content",
+							post_title: "title"
+					};
+
 			var post = posts[key];
 			post = post.data;
 			//let chunkedpost = chunkStringToWords(post.selftext,20); // chunks 500 characters
@@ -116,7 +126,7 @@ export function activate(context: vscode.ExtensionContext) {
 			postobject.post_title = post.title;
 			panel.webview.html = getWebviewContent(postobject);
 			const updateWebview = () => {
-				panel.title = postobject.post_title;
+				panel.title = post.post_title;
 				count++;
 				//panel.webview.html = getWebviewContent(postobject);
 				panel.webview.postMessage(postobject);
@@ -159,13 +169,19 @@ function getWebviewContent(post: postobject){
 			<meta name="viewport" content="width=device-width, initial-scale=1.0">
 			<style>
 			.video-container {
-				height: 100%;
-				width: 100%;
+				position: relative;
+				height: 100vh;
+				overflow: hidden;
 			  }
 			  
 			  .video-container video {
-				width: 100%;
-				display: block;
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100%; /* Set width to 100% to fill the container horizontally */
+				height: 100%;
+				overflow: hidden;
+				border-radius: 50px;
 			  }
 			  
 			  .text-box {
@@ -173,11 +189,14 @@ function getWebviewContent(post: postobject){
 				top: 50%;
 				left: 50%;
 				transform: translate(-50%, -50%);
-				background-color: rgba(0, 0, 0, 0.5);
+				width: 75hw;
+				backdrop-filter: blur(10px);
+				background-color: rgba(0, 0, 0, 0.2);
 				padding: 5px;
 				text-align: center;
 				color: #fff;
 				border-radius: 10px;
+				box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
 			  }
 			  
 			  .text-box h4 {
@@ -193,7 +212,7 @@ function getWebviewContent(post: postobject){
 		<body>
 
 			<div class="video-container">
-				<video autoplay loop muted width="300">
+				<video autoplay loop muted>
 					<source src="https://yewtu.be/latest_version?id=${post.video_id}&amp;itag=22#t=100">
 				</video>
 				<div class="text-box">
